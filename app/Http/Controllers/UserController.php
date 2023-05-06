@@ -67,7 +67,7 @@ class UserController extends Controller
         ]);
         if($validate->fails()) return response(["status"=>"fail", "data"=>$validate->errors() ], 409);
         $update = User::where("id", $id)->update($request->all());
-        return response(["status" => $update ? "success" : "fail", "message" => !$update ?"unable to update":"user updated" ], $update ? 200: 400); 
+        return response(["status" => $update ? "success" : "fail", "message" => !$update ?"unable to update":"user updated" ], $update ? 200: 401); 
     }
 
     /**
@@ -78,9 +78,16 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $delete = User::find($id)->delete();
+        return response(["status" => $delete ? "success" : "fail", "message" => !$delete ?"unable to delete":"user deleted" ], $delete ? 200: 401);
     }
 
+    /**
+     * login authenticated user from the storage
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function login (Request $request)
     {
         $authenticate = auth()->attempt(["email" => $request->email, "password" => $request->password]);
