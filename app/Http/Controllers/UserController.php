@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -95,16 +96,5 @@ class UserController extends Controller
         return response(["status" => "fail", "message" => $authenticate], 401);
     }
 
-    /**
-     * login authenticated user from the storage
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function updateWallet (Request $request)
-    {
-        $authenticate = auth()->attempt(["email" => $request->email, "password" => $request->password]);
-        if($authenticate) return response(["status" => "success", "message" => auth()->user()], 200);
-        return response(["status" => "fail", "message" => $authenticate], 401);
-    }
+
 }
