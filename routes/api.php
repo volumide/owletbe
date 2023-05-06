@@ -15,18 +15,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 
-Route::get("/", function(){
-    return "working";
-});
+// Route::get("/", function(){
+//     return "working";
+// });
 
 Route::apiResource("user", UserController::class);
 Route::post("login", [UserController::class, "login"]);
 Route::post("transaction", [UserController::class, "transaction"]);
 Route::put("transaction/{id}", [UserController::class, "updateTransaction"]);
 Route::get("transactions", [UserController::class, "getTransactions"]);
-Route::get("transaction/{id}", [UserController::class, "transaction"]);
+Route::get("transaction/{id}", [UserController::class, "getTransactionById"]);
+Route::get("transaction/user/{id}", [UserController::class, "getTransactionByUserId"]);
