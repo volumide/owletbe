@@ -26,3 +26,7 @@ Route::get("/", function(){
 
 Route::apiResource("user", UserController::class);
 Route::post("login", [UserController::class, "login"]);
+Route::post("transaction", [UserController::class, "transaction"]);
+Route::put("transaction/{id}", [UserController::class, "updateTransaction"]);
+Route::get("transactions", [UserController::class, "getTransactions"]);
+Route::get("transaction/{id}", [UserController::class, "transaction"]);

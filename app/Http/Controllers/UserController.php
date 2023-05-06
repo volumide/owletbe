@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Transaction;
 use App\Models\User;
-use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -96,5 +96,59 @@ class UserController extends Controller
         return response(["status" => "fail", "message" => $authenticate], 401);
     }
 
+    /**
+     * create transaction on transaction table
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function transaction (Request $request)
+    {
+        $transaction = Transaction::create($request->all());
+        return response(["status" => "success", "message" => "transaction created", "data" => $transaction], 200);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateTransaction(Request $request, $id)
+    {
+        
+        $update = Transaction::where("transaction_id", $id)->update($request->all());
+        return response(["status" => $update ? "success" : "fail", "message" => !$update ?"unable to update":"transaction updated" ], $update ? 200: 401);
+    }
+
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getTransactions(){
+        return response(["status"=>"success", "data"=>Transaction::all()], 200);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getTransactionById($id){
+        $transaction = Transaction::find($id);
+        return response(["status"=>"success", "data"=> $transaction], $transaction ? 200: 404);
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getTransactionByUserId($id){
+        $transaction = Transaction::firstWhere("user_id", $id);
+        return response(["status"=>"success", "data"=>$transaction],  $transaction ? 200: 404);
+    }
 
 }
