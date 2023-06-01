@@ -25,11 +25,17 @@ use Illuminate\Support\Facades\Route;
 //     return "working";
 // });
 
-Route::apiResource("user", UserController::class);
+
 Route::post("login", [UserController::class, "login"]);
-Route::post("transaction", [UserController::class, "transaction"]);
-Route::put("transaction/{id}", [UserController::class, "updateTransaction"]);
-Route::get("transactions", [UserController::class, "getTransactions"]);
-Route::get("transaction/{id}", [UserController::class, "getTransactionById"]);
-Route::get("transaction/user/{id}", [UserController::class, "getTransactionByUserId"]);
-Route::get("payment", [FlutterwaveController::class, "createPayment"]);
+Route::post("user", [UserController::class, "store"]);
+
+Route::group(['middleware' => 'auth:api'], function() {
+	Route::apiResource("user", UserController::class)->except("store");
+	Route::post("transaction", [FlutterwaveController::class, "transaction"]);
+	Route::get("wallet", [FlutterwaveController::class, "getWallet"]);
+	Route::put("transaction/{id}", [FlutterwaveController::class, "updateTransaction"]);
+	Route::get("transactions", [FlutterwaveController::class, "getTransactions"]);
+	Route::get("transaction/{id}", [FlutterwaveController::class, "getTransactionById"]);
+	Route::get("transaction/user/{id}", [FlutterwaveController::class, "getTransactionByUserId"]);
+	Route::post("payment", [FlutterwaveController::class, "createPayment"]);
+});

@@ -13,17 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('wallet', function (Blueprint $table) {
             $table->id();
             $table->string("user_id");
-            $table->string("type");
-            $table->string("requestId");
-            $table->string("transaction_id");
-            $table->string("tx_ref");
-            $table->string("amount");
-            $table->string("status")->default("initiated");
-            $table->string("status_flutter")->default("initiated");
-            $table->string("phone");
+            $table->string("old_balance");
+            $table->string("new_balance");
+            $table->string("type")->nullable();
+            $table->date("deleted_at");
             $table->timestamps();
         });
     }
@@ -35,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('transaction');
+        Schema::dropIfExists('wallet');
     }
 };

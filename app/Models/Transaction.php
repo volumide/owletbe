@@ -17,12 +17,12 @@ class Transaction extends Model
      */
     protected $fillable = [
         'user_id',
-        'transaction_type',
+        "requestId",
         'transaction_id',
-        'account_id',
-        'amount',
-        'email',
+        "tx_ref",
+        "amount",
         'status',
+        "status_payment",
         "phone"
     ];
 }
