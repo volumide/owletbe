@@ -17,6 +17,7 @@ class Transaction extends Model
      */
     protected $fillable = [
         'user_id',
+        'type',
         "requestId",
         'transaction_id',
         "tx_ref",

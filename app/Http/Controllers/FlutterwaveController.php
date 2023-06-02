@@ -71,7 +71,8 @@ class FlutterwaveController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function getTransactions(){
-        return response(["status"=>"success", "data"=>Transaction::all()], 200);
+        $user = Auth::user();
+        return response(["status"=>"success", "data"=>Transaction::all(), "user"=> $user], 200);
     }
 
     /**
@@ -88,15 +89,34 @@ class FlutterwaveController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getTransactionByUserId($id){
-        $transaction = Transaction::firstWhere("user_id", $id);
-        return response(["status"=>"success", "data"=>$transaction],  $transaction ? 200: 404);
+
+
+    public function userTransaction() {
+        $user = Auth::user();
+        $transaction = Transaction::where("user_id", $user->id)->get();
+        $latest =Transaction::latest()->take(10)->where("user_id", $user->id)->get();
+        return response(["status"=>"success", "id"=> $user->id, "data"=>$transaction, "latest"=>$latest],  $transaction ? 200: 404);
     }
 
     public function topUpWallet(Request $request) {
         $userId = Auth::user();
+        $request['user_id'] = $userId->id;
+        $request['old_balance'] = $userId->wallet_balance ?? "0";
+        $request['type'] = "topup";
+        $request['new_balance'] = $request->amount;
         $wallet = Wallet::create($request->all());
+
         User::where("id", $userId->id)->update(["wallet_balance" => $userId->wallet_balance + $wallet->new_balance]);
+        
+        Transaction::create([
+            "user_id" =>  $userId->id,
+            "type"=>"wallet",
+            "transaction_id"=>  date('H:i:s'),
+            "phone" => $userId->phone,
+            "amount"=>$request->amount,
+            "tx_ref"=> $request->tx_ref ?? "demo"
+        ]);
+        
         return response(["status"=>"success", "data"=>$wallet->id], 200);
     }
 
@@ -104,6 +124,6 @@ class FlutterwaveController extends Controller
         $userId = Auth::user();
         $wallet = Wallet::where("user_id", $userId->id);
 
-        return response(["status"=>"success", "data"=>$userId->id], 200);
+        return response(["status"=>"success", "data"=>$userId->id, "user"=> $userId ], 200);
     }
 }

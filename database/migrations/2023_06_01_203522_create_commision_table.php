@@ -13,13 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('wallets', function (Blueprint $table) {
+        Schema::create('commisions', function (Blueprint $table) {
             $table->id();
-            $table->string("user_id");
-            $table->string("old_balance");
-            $table->string("new_balance");
-            $table->string("type")->nullable();
-            $table->softDeletes();
+            $table->string("commision");
+            $table->boolean("primary")->default(false);
             $table->timestamps();
         });
     }
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('wallet');
+        Schema::dropIfExists('commision');
     }
 };

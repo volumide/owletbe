@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string("user_id");
             $table->string("type");
-            $table->string("requestId");
+            $table->string("requestId")->nullable();
             $table->string("transaction_id");
             $table->string("tx_ref");
             $table->string("amount");

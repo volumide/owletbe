@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Commision;
 use App\Http\Controllers\FlutterwaveController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -32,10 +33,17 @@ Route::post("user", [UserController::class, "store"]);
 Route::group(['middleware' => 'auth:api'], function() {
 	Route::apiResource("user", UserController::class)->except("store");
 	Route::post("transaction", [FlutterwaveController::class, "transaction"]);
-	Route::get("wallet", [FlutterwaveController::class, "getWallet"]);
+	Route::post("transactions", [FlutterwaveController::class, "getTransactions"]);
 	Route::put("transaction/{id}", [FlutterwaveController::class, "updateTransaction"]);
 	Route::get("transactions", [FlutterwaveController::class, "getTransactions"]);
 	Route::get("transaction/{id}", [FlutterwaveController::class, "getTransactionById"]);
-	Route::get("transaction/user/{id}", [FlutterwaveController::class, "getTransactionByUserId"]);
+	Route::get("transactions/user", [FlutterwaveController::class, "userTransaction"]);
 	Route::post("payment", [FlutterwaveController::class, "createPayment"]);
+	Route::get("wallet", [FlutterwaveController::class, "getWallet"]);
+	
+	Route::get("commision", [Commision::class, "getDefault"]);
+	Route::get("commision/{id}", [Commision::class, "getDefault"]);
+	Route::put("commision/{id}", [Commision::class, "update"]);
+	Route::get("commisions", [Commision::class, "getAll"]);
+	Route::post("commision", [Commision::class, "new"]);
 });
