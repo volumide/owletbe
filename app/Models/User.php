@@ -29,7 +29,8 @@ class User extends Authenticatable
         'country',
         'email',
         'password',
-        "wallet_balance"
+        "wallet_balance",
+        "type"
     ];
 
     /**
