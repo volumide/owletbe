@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -63,13 +65,21 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validate = Validator::make($request->all(), [
-            'email' => 'unique:users|email',
-            'phone' => 'unique:users|min:11|max:11'
-        ]);
-        if($validate->fails()) return response(["status"=>"fail", "data"=>$validate->errors() ], 409);
+        if($request->email){
+            $validate = Validator::make($request->all(), [
+                'email' => 'unique:users|email',
+            ]);
+            if($validate->fails()) return response(["status"=>"fail", "data"=>$validate->errors() ], 409);
+        }
+        if($request->phone){
+            $validate = Validator::make($request->all(), [
+                'phone' => 'unique:users|min:11|max:11'
+            ]);
+            if($validate->fails()) return response(["status"=>"fail", "data"=>$validate->errors() ], 409);
+        }
         $update = User::where("id", $id)->update($request->all());
-        return response(["status" => $update ? "success" : "fail", "message" => !$update ?"unable to update":"user updated" ], $update ? 200: 401); 
+        $user = Auth::user();
+        return response(["status" => $update ? "success" : "fail", "message" => !$update ?"unable to update":"user updated", "data"=> $user ], $update ? 200: 401); 
     }
 
     /**
@@ -101,6 +111,21 @@ class UserController extends Controller
         } 
         return response(["status" => "fail", "message" => $authenticate], 401);
     }
+    
+    public function userProfile(){
+        $user = Auth::user();
 
+        return response(["status" => "success", "data" => $user], 200);
+    }
 
+    public function updatePassword(Request $request, $id)
+    {
+        $user = Auth::user();
+        if(!Hash::check($request->password, $user->old_password)){
+            return response(["status" => "fail", "data" =>"" ], 401); 
+        }
+        $password = bcrypt($request->new_password);
+        User::where("id", $user->id)->update(['password', $password]);
+        return response(["status" => "success", "message" =>"password succesully chaged" ], 200); 
+    }
 }

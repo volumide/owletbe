@@ -40,6 +40,7 @@ Route::group(['middleware' => 'auth:api'], function() {
 	Route::get("transactions/user", [FlutterwaveController::class, "userTransaction"]);
 	Route::post("payment", [FlutterwaveController::class, "createPayment"]);
 	Route::get("wallet", [FlutterwaveController::class, "getWallet"]);
+	Route::post("top/up", [FlutterwaveController::class, "topUpWallet"]);
 	
 	Route::get("commision", [Commision::class, "getDefault"]);
 	Route::get("commision/{id}", [Commision::class, "getDefault"]);
