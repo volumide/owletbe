@@ -112,20 +112,14 @@ class UserController extends Controller
         return response(["status" => "fail", "message" => $authenticate], 401);
     }
     
-    public function userProfile(){
-        $user = Auth::user();
-
-        return response(["status" => "success", "data" => $user], 200);
-    }
-
-    public function updatePassword(Request $request, $id)
+    public function updatePassword(Request $request)
     {
         $user = Auth::user();
-        if(!Hash::check($request->password, $user->old_password)){
-            return response(["status" => "fail", "data" =>"" ], 401); 
+        if(!Hash::check($request->old_password, $user->password)){
+            return response(["status" => "fail", "message" =>"password not matched" ], 401); 
         }
         $password = bcrypt($request->new_password);
-        User::where("id", $user->id)->update(['password', $password]);
-        return response(["status" => "success", "message" =>"password succesully chaged" ], 200); 
+        User::where("id", $user->id)->update(['password' => $password]);
+        return response(["status" => "success", "message" =>"password succesully changed" ], 200); 
     }
 }

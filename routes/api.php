@@ -32,6 +32,7 @@ Route::post("user", [UserController::class, "store"]);
 
 Route::group(['middleware' => 'auth:api'], function() {
 	Route::apiResource("user", UserController::class)->except("store");
+	Route::put("change/password", [UserController::class, "updatePassword"]);
 	Route::post("transaction", [FlutterwaveController::class, "transaction"]);
 	Route::post("transactions", [FlutterwaveController::class, "getTransactions"]);
 	Route::put("transaction/{id}", [FlutterwaveController::class, "updateTransaction"]);
