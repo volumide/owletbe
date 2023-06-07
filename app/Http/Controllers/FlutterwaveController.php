@@ -8,12 +8,15 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+
 
 class FlutterwaveController extends Controller
 {
     public function createPayment(Request $request){
         $client = new Client();
-    
+        $timeStamp= now()->format('YmdHis');
+        $uid = Str::uuid()->toString();
         $response = $client->post('https://api.flutterwave.com/v3/payments', [
             'headers' => [
                 'Authorization' => 'Bearer FLWSECK-d79f6dafc5b4cf2567f20c4fa70060fa-1881fc42fe1vt-X',
@@ -22,7 +25,7 @@ class FlutterwaveController extends Controller
             'json' => [
                 'amount' => $request->amount,
                 'currency' => 'NGN',
-                'tx_ref' => $request->requestId,
+                'tx_ref' => $timeStamp . '-' . $uid,
                 'redirect_url' =>$request->callback ?? 'http://localhost:5173/transaction',
                 'customer' => [
                     "email" => $request->email,
@@ -46,9 +49,13 @@ class FlutterwaveController extends Controller
      */
     public function transaction (Request $request)
     {
+        $timeStamp= now()->format('YmdHis');
+        $uid = Str::uuid()->toString();
         $transaction = Transaction::create($request->all());
         return response(["status" => "success", "message" => "transaction created", "data" => $transaction], 200);
     }
+
+
 
     /**
      * Update the specified resource in storage.
@@ -107,14 +114,43 @@ class FlutterwaveController extends Controller
         $wallet = Wallet::create($request->all());
 
         User::where("id", $userId->id)->update(["wallet_balance" => $userId->wallet_balance + $wallet->new_balance]);
+        $timeStamp= now()->format('YmdHis');
+        $uid = Str::uuid()->toString();
+        Transaction::create([
+            "user_id" =>  $userId->id,
+            "type"=>"wallet_topup",
+            "transaction_id"=>  $timeStamp,
+            "phone" => $userId->phone,
+            "amount"=>$request->amount,
+            "tx_ref"=> $timeStamp . '-' . $uid
+        ]);
+        
+        return response(["status"=>"success", "data"=>$wallet->id], 200);
+    }
+
+    public function payWithWallet(Request $request){
+        $userId = Auth::user();
+        $request['user_id'] = $userId->id;
+        $request['old_balance'] = $userId->wallet_balance ?? "0";
+        $request['type'] = "withdraw";
+        $request['new_balance'] = $request->amount;
+        $wallet = Wallet::create($request->all());
+
+        if($userId->wallet_balance < $request->amount){{
+            return response(["status"=>"success", "message"=>"insufficent wallet balance"], 405);
+        }}
+
+        User::where("id", $userId->id)->update(["wallet_balance" => $userId->wallet_balance - $wallet->new_balance]);
+        $timeStamp= now()->format('YmdHis');
+        $uid = Str::uuid()->toString();
         
         Transaction::create([
             "user_id" =>  $userId->id,
-            "type"=>"wallet",
-            "transaction_id"=>  date('H:i:s'),
-            "phone" => $userId->phone,
+            "type"=>"wallet_withdraw",
+            "transaction_id"=>  $timeStamp,
+            "phone" => $request->phone,
             "amount"=>$request->amount,
-            "tx_ref"=> $request->tx_ref ?? "demo"
+            "tx_ref"=> $timeStamp . '-' . $uid
         ]);
         
         return response(["status"=>"success", "data"=>$wallet->id], 200);

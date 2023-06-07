@@ -29,22 +29,26 @@ use Illuminate\Support\Facades\Route;
 
 Route::post("login", [UserController::class, "login"]);
 Route::post("user", [UserController::class, "store"]);
-
+Route::post("payment", [FlutterwaveController::class, "createPayment"]);
+Route::post("transaction", [FlutterwaveController::class, "transaction"]);
+Route::post("send/mail", [UserController::class, "sendMail"]);
+// Route::get("commision/id", [Commision::class, "getDefault"]);
+Route::get("commision", [Commision::class, "getDefault"]);
 Route::group(['middleware' => 'auth:api'], function() {
 	Route::apiResource("user", UserController::class)->except("store");
 	Route::put("change/password", [UserController::class, "updatePassword"]);
-	Route::post("transaction", [FlutterwaveController::class, "transaction"]);
-	Route::post("transactions", [FlutterwaveController::class, "getTransactions"]);
+
+	Route::post("transactions", [FlutterwaveController::class, "transaction"]);
 	Route::put("transaction/{id}", [FlutterwaveController::class, "updateTransaction"]);
 	Route::get("transactions", [FlutterwaveController::class, "getTransactions"]);
 	Route::get("transaction/{id}", [FlutterwaveController::class, "getTransactionById"]);
 	Route::get("transactions/user", [FlutterwaveController::class, "userTransaction"]);
-	Route::post("payment", [FlutterwaveController::class, "createPayment"]);
+	
 	Route::get("wallet", [FlutterwaveController::class, "getWallet"]);
 	Route::post("top/up", [FlutterwaveController::class, "topUpWallet"]);
+	Route::post("withdraw", [FlutterwaveController::class, "payWithWallet"]);
 	
-	Route::get("commision", [Commision::class, "getDefault"]);
-	Route::get("commision/{id}", [Commision::class, "getDefault"]);
+	
 	Route::put("commision/{id}", [Commision::class, "update"]);
 	Route::get("commisions", [Commision::class, "getAll"]);
 	Route::post("commision", [Commision::class, "new"]);

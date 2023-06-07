@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 
+use App\Mail\Verification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -121,5 +123,43 @@ class UserController extends Controller
         $password = bcrypt($request->new_password);
         User::where("id", $user->id)->update(['password' => $password]);
         return response(["status" => "success", "message" =>"password succesully changed" ], 200); 
+    }
+
+    public function sendMail () 
+    {
+        $user= "volumide42@gmail.com";
+        $users = Mail::to($user)->send(new Verification() );
+        dd($user);
+    }
+
+    public function forgotPaswordCode(Request $request) {
+        $code = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+        $user = User::where("email", $request->email)->first();
+        if(!$user){
+            return response(["status" => "fail", "message" =>"user not found" ], 404); 
+        }
+
+        User::where("email", $request->email)->update("code", $code);
+        return response(["status" => "success", "message" =>"user not found", "data" => $code ], 200); 
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $password = bcrypt($request->password);
+        $user = User::where([
+            "email"=> $request->email,
+            "code"=> $request->code
+        ])->first();
+
+        if(!$user){
+            return response(["status" => "fail", "message" =>"invalid code" ], 404); 
+        }
+
+        $user = User::where([
+            "email"=> $request->email,
+            "code"=> $request->code
+        ])->update("password", $password);
+
+        return response(["status" => "success", "message" => "password reset success"  ], 200); 
     }
 }
