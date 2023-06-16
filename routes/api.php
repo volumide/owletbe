@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Commision;
 use App\Http\Controllers\FlutterwaveController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,14 +32,18 @@ Route::post("login", [UserController::class, "login"]);
 Route::post("user", [UserController::class, "store"]);
 Route::post("payment", [FlutterwaveController::class, "createPayment"]);
 Route::post("transaction", [FlutterwaveController::class, "transaction"]);
+Route::post("payment/verify", [FlutterwaveController::class, "verifyPayment"]);
 Route::post("send/mail", [UserController::class, "sendMail"]);
-// Route::get("commision/id", [Commision::class, "getDefault"]);
+
+Route::get("service/latest", [ServiceController::class, "getLatest"]);
+Route::get("service/all", [ServiceController::class, "getAllService"]);
+
 Route::get("commision", [Commision::class, "getDefault"]);
 Route::group(['middleware' => 'auth:api'], function() {
 	Route::apiResource("user", UserController::class)->except("store");
 	Route::put("change/password", [UserController::class, "updatePassword"]);
 
-	Route::post("transactions", [FlutterwaveController::class, "transaction"]);
+	// Route::post("transactions", [FlutterwaveController::class, "transaction"]);
 	Route::put("transaction/{id}", [FlutterwaveController::class, "updateTransaction"]);
 	Route::get("transactions", [FlutterwaveController::class, "getTransactions"]);
 	Route::get("transaction/{id}", [FlutterwaveController::class, "getTransactionById"]);
@@ -48,8 +53,10 @@ Route::group(['middleware' => 'auth:api'], function() {
 	Route::post("top/up", [FlutterwaveController::class, "topUpWallet"]);
 	Route::post("withdraw", [FlutterwaveController::class, "payWithWallet"]);
 	
-	
 	Route::put("commision/{id}", [Commision::class, "update"]);
 	Route::get("commisions", [Commision::class, "getAll"]);
 	Route::post("commision", [Commision::class, "new"]);
+
+	Route::post("service", [ServiceController::class, "saveService"]);
+
 });

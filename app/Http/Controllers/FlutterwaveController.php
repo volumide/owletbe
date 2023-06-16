@@ -17,9 +17,10 @@ class FlutterwaveController extends Controller
         $client = new Client();
         $timeStamp= now()->format('YmdHis');
         $uid = Str::uuid()->toString();
-        $response = $client->post('https://api.flutterwave.com/v3/payments', [
+        // $response = $client->post('https://api.flutterwave.com/v3/payments', [
+        $response = $client->post('https://api.paystack.co/transaction/initialize', [
             'headers' => [
-                'Authorization' => 'Bearer FLWSECK-d79f6dafc5b4cf2567f20c4fa70060fa-1881fc42fe1vt-X',
+                'Authorization' => 'Bearer '. env("FLUTTER_KEY"),
                 'Content-Type' => 'application/json',
             ],
             'json' => [
@@ -27,6 +28,12 @@ class FlutterwaveController extends Controller
                 'currency' => 'NGN',
                 'tx_ref' => $timeStamp . '-' . $uid,
                 'redirect_url' =>$request->callback ?? 'http://localhost:5173/transaction',
+                'callback_url'=>$request->callback ?? 'http://localhost:5173/transaction',
+
+                "email" => $request->email,
+                "phonenumber"=> $request->phone,
+                "name" => $request->name,
+                
                 'customer' => [
                     "email" => $request->email,
                     "phonenumber"=> $request->phone,
@@ -41,6 +48,21 @@ class FlutterwaveController extends Controller
         return response(["body" => $body, "status" => $statusCode]);
     }
 
+    public function verifyPayment(Request $request){
+        $client = new Client();
+        $response = $client->get("https://api.paystack.co/transaction/verify/{$request->id}", [
+            'headers' => [
+                'Authorization' => "Bearer ".  env("FLUTTER_KEY"),
+                'Accept' => 'application/json',
+            ],
+        ]);
+        $statusCode = $response->getStatusCode();
+        $responseData = json_decode($response->getBody()->getContents(), true);
+
+        return response(["body" => $responseData, "status" => $statusCode]);
+
+    }
+
         /**
      * create transaction on transaction table
      *
@@ -51,7 +73,16 @@ class FlutterwaveController extends Controller
     {
         $timeStamp= now()->format('YmdHis');
         $uid = Str::uuid()->toString();
-        $transaction = Transaction::create($request->all());
+        $transaction = Transaction::create([
+            "user_id" =>  $request->id,
+            "type"=>"online payment",
+            "requestId" => $request->requestId,
+            "transaction_id"=>  $timeStamp,
+            "phone" => $request->phone,
+            "amount"=>$request->amount,
+            "tx_ref"=> $request->ref
+        ]);
+        // $transaction = Transaction::create($request->all());
         return response(["status" => "success", "message" => "transaction created", "data" => $transaction], 200);
     }
 
@@ -79,6 +110,7 @@ class FlutterwaveController extends Controller
      */
     public function getTransactions(){
         $user = Auth::user();
+        $transaction = Transaction::all();
         return response(["status"=>"success", "data"=>Transaction::all(), "user"=> $user], 200);
     }
 
@@ -119,6 +151,7 @@ class FlutterwaveController extends Controller
         Transaction::create([
             "user_id" =>  $userId->id,
             "type"=>"wallet_topup",
+            // "requestId" => $request->requestId,
             "transaction_id"=>  $timeStamp,
             "phone" => $userId->phone,
             "amount"=>$request->amount,
@@ -147,6 +180,7 @@ class FlutterwaveController extends Controller
         Transaction::create([
             "user_id" =>  $userId->id,
             "type"=>"wallet_withdraw",
+            "requestId"=>$request->requestId,
             "transaction_id"=>  $timeStamp,
             "phone" => $request->phone,
             "amount"=>$request->amount,

@@ -30,7 +30,8 @@ class User extends Authenticatable
         'email',
         'password',
         "wallet_balance",
-        "type"
+        "type",
+        "suspend"
     ];
 
     /**
