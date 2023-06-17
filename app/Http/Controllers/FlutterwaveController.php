@@ -80,7 +80,8 @@ class FlutterwaveController extends Controller
             "transaction_id"=>  $timeStamp,
             "phone" => $request->phone,
             "amount"=>$request->amount,
-            "tx_ref"=> $request->ref
+            "tx_ref"=> $request->ref,
+            "data" => $request->data
         ]);
         // $transaction = Transaction::create($request->all());
         return response(["status" => "success", "message" => "transaction created", "data" => $transaction], 200);
@@ -150,12 +151,12 @@ class FlutterwaveController extends Controller
         $uid = Str::uuid()->toString();
         Transaction::create([
             "user_id" =>  $userId->id,
-            "type"=>"wallet_topup",
+            "type"=>"wallet topup",
             // "requestId" => $request->requestId,
             "transaction_id"=>  $timeStamp,
             "phone" => $userId->phone,
             "amount"=>$request->amount,
-            "tx_ref"=> $timeStamp . '-' . $uid
+            "tx_ref"=> $timeStamp . '-' . $uid,
         ]);
         
         return response(["status"=>"success", "data"=>$wallet->id], 200);
@@ -179,12 +180,13 @@ class FlutterwaveController extends Controller
         
         Transaction::create([
             "user_id" =>  $userId->id,
-            "type"=>"wallet_withdraw",
+            "type"=>$request->reason,
             "requestId"=>$request->requestId,
             "transaction_id"=>  $timeStamp,
             "phone" => $request->phone,
             "amount"=>$request->amount,
-            "tx_ref"=> $timeStamp . '-' . $uid
+            "tx_ref"=> $timeStamp . '-' . $uid,
+            "data" =>  $request->data
         ]);
         
         return response(["status"=>"success", "data"=>$wallet->id], 200);

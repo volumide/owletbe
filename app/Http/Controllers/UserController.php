@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+    protected $mailingService;
+    public function __construct(Verification $verify) {
+        $this->mailingService = $verify;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -125,38 +129,21 @@ class UserController extends Controller
         return response(["status" => "success", "message" =>"password succesully changed" ], 200); 
     }
 
-    public function sendMail () 
+    public function sendMail (Request $request) 
     {
-        //   try {
-        //               $mailchimp = new \MailchimpTransactional\ApiClient();
-        //               $mailchimp->setApiKey('Bq4kzcDKxBIourlf5zhsaA');
-            
-        //               $response = $mailchimp->messages->sendTemplate([
-        //                   "template_name" => $templatename,
-        //                   "template_content" => [['name'=>"load",'content'=>"mylogin"]],
-        //                   "message" => [
-        //                     "from_email" => $from,
-        //                     "subject" => $subject,
-        //                     "to" => [
-        //                         [
-        //                             "email" => $to,
-        //                             "type" => "to"
-        //                         ]
-        //                         ],
-        //                         "global_merge_vars"=>$merarr
-        //                 ],
-        //               ]);
-        //               // print_r($response);
-            
-            
-        //             } catch (\Illuminate\Database\QueryException $ex) {
-        //               return $ex;
-        //                 // echo 'Error: ', $ex->getMessage(), "\n";
-        //             }
-            
+        
+
         $user= "volumide42@gmail.com";
-        $users = Mail::to($user)->send(new Verification() );
-        dd($user);
+        // $response = $this->mailingService->sendMail($request->to, $request->subject, $request->content);
+        // return $response;
+        // dd($response);
+        // if ($response->success_count > 0) {
+        //     dd($response);
+        // } else {
+        //     // Error occurred while sending email
+        // }
+        $users = Mail::to($user)->send(new Verification());
+        dd($users);
     }
 
     public function forgotPaswordCode(Request $request) {

@@ -24,6 +24,7 @@ class Transaction extends Model
         "amount",
         'status',
         "status_payment",
-        "phone"
+        "phone",
+        "data"
     ];
 }

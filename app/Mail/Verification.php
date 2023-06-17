@@ -9,11 +9,12 @@ use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use MailchimpTransactional\ApiClient;
 
 class Verification extends Mailable
 {
     use Queueable, SerializesModels;
-
+    protected $mailchimp;
     /**
      * Create a new message instance.
      *
@@ -21,7 +22,8 @@ class Verification extends Mailable
      */
     public function __construct()
     {
-        //
+        $this->mailchimp = new ApiClient();
+        $this->mailchimp->setApiKey(env('MAIL_PASSWORD'));
     }
 
     /**
@@ -35,6 +37,25 @@ class Verification extends Mailable
             from:new Address("owletpay@noreply.com"),
             subject: 'Verification',
         );
+    }
+
+    public function sendMail($to, $subject, $content){
+        // $this->mailchimp->messages
+        $response = $this->mailchimp->messages->send([
+            'message' => [
+                'from_email' => "getonboard@owletpay.com",
+                'subject' => $subject,
+                'text' => $content,
+                'to' => [
+                    [
+                        'email' => $to,
+                        'type' => 'to'
+                    ]
+                ]
+            ]
+        ]);
+
+        return $response;
     }
 
     /**
