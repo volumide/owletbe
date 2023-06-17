@@ -75,7 +75,7 @@ class FlutterwaveController extends Controller
         $uid = Str::uuid()->toString();
         $transaction = Transaction::create([
             "user_id" =>  $request->id,
-            "type"=>"online payment",
+            "type"=>$request->reason,
             "requestId" => $request->requestId,
             "transaction_id"=>  $timeStamp,
             "phone" => $request->phone,

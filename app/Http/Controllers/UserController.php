@@ -127,6 +127,33 @@ class UserController extends Controller
 
     public function sendMail () 
     {
+        //   try {
+        //               $mailchimp = new \MailchimpTransactional\ApiClient();
+        //               $mailchimp->setApiKey('Bq4kzcDKxBIourlf5zhsaA');
+            
+        //               $response = $mailchimp->messages->sendTemplate([
+        //                   "template_name" => $templatename,
+        //                   "template_content" => [['name'=>"load",'content'=>"mylogin"]],
+        //                   "message" => [
+        //                     "from_email" => $from,
+        //                     "subject" => $subject,
+        //                     "to" => [
+        //                         [
+        //                             "email" => $to,
+        //                             "type" => "to"
+        //                         ]
+        //                         ],
+        //                         "global_merge_vars"=>$merarr
+        //                 ],
+        //               ]);
+        //               // print_r($response);
+            
+            
+        //             } catch (\Illuminate\Database\QueryException $ex) {
+        //               return $ex;
+        //                 // echo 'Error: ', $ex->getMessage(), "\n";
+        //             }
+            
         $user= "volumide42@gmail.com";
         $users = Mail::to($user)->send(new Verification() );
         dd($user);
