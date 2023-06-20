@@ -71,13 +71,14 @@ class FlutterwaveController extends Controller
      */
     public function transaction (Request $request)
     {
-        $timeStamp= now()->format('YmdHis');
-        $uid = Str::uuid()->toString();
+        $count = Transaction::count();
+        $count += 1;
+        $transId = str_pad($count, 4, '0', STR_PAD_LEFT);
         $transaction = Transaction::create([
             "user_id" =>  $request->id,
             "type"=>$request->reason,
             "requestId" => $request->requestId,
-            "transaction_id"=>  $timeStamp,
+            "transaction_id"=>  $transId,
             "phone" => $request->phone,
             "amount"=>$request->amount,
             "tx_ref"=> $request->ref,
@@ -147,16 +148,18 @@ class FlutterwaveController extends Controller
         $wallet = Wallet::create($request->all());
 
         User::where("id", $userId->id)->update(["wallet_balance" => $userId->wallet_balance + $wallet->new_balance]);
-        $timeStamp= now()->format('YmdHis');
+        $count = Transaction::count();
+        $count += 1;
         $uid = Str::uuid()->toString();
+        $tranId = str_pad($count,4, '0', STR_PAD_LEFT);
         Transaction::create([
             "user_id" =>  $userId->id,
             "type"=>"wallet topup",
             // "requestId" => $request->requestId,
-            "transaction_id"=>  $timeStamp,
+            "transaction_id"=> $tranId ,
             "phone" => $userId->phone,
             "amount"=>$request->amount,
-            "tx_ref"=> $timeStamp . '-' . $uid,
+            "tx_ref"=> $tranId . '-' . $uid,
         ]);
         
         return response(["status"=>"success", "data"=>$wallet->id], 200);
@@ -173,19 +176,23 @@ class FlutterwaveController extends Controller
         if($userId->wallet_balance < $request->amount){{
             return response(["status"=>"success", "message"=>"insufficent wallet balance"], 405);
         }}
+        
+        $count = Transaction::count();
+        $count += 1;
+        $uid = Str::uuid()->toString();
+        $tranId = str_pad($count,4, '0', STR_PAD_LEFT);
 
         User::where("id", $userId->id)->update(["wallet_balance" => $userId->wallet_balance - $wallet->new_balance]);
-        $timeStamp= now()->format('YmdHis');
         $uid = Str::uuid()->toString();
         
         Transaction::create([
             "user_id" =>  $userId->id,
             "type"=>$request->reason,
             "requestId"=>$request->requestId,
-            "transaction_id"=>  $timeStamp,
+            "transaction_id"=>  $tranId,
             "phone" => $request->phone,
             "amount"=>$request->amount,
-            "tx_ref"=> $timeStamp . '-' . $uid,
+            "tx_ref"=> $tranId . '-' . $uid,
             "data" =>  $request->data
         ]);
         

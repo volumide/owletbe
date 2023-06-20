@@ -45,7 +45,7 @@ class Verification extends Mailable
             'message' => [
                 'from_email' => "getonboard@owletpay.com",
                 'subject' => $subject,
-                'text' => $content,
+                'html' => $content,
                 'to' => [
                     [
                         'email' => $to,

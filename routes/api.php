@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post("login", [UserController::class, "login"]);
 Route::post("user", [UserController::class, "store"]);
+Route::post("reset", [UserController::class, "resetPassword"]);
 Route::post("payment", [FlutterwaveController::class, "createPayment"]);
 Route::post("transaction", [FlutterwaveController::class, "transaction"]);
 Route::post("payment/verify", [FlutterwaveController::class, "verifyPayment"]);
@@ -38,7 +39,7 @@ Route::post("send/mail", [UserController::class, "sendMail"]);
 Route::get("service/latest", [ServiceController::class, "getLatest"]);
 Route::get("service/all", [ServiceController::class, "getAllService"]);
 
-Route::get("commision", [Commision::class, "getDefault"]);
+Route::get("commision", [Commision::class, "getLatest"]);
 Route::group(['middleware' => 'auth:api'], function() {
 	Route::apiResource("user", UserController::class)->except("store");
 	Route::put("change/password", [UserController::class, "updatePassword"]);

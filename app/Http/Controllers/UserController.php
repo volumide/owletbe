@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
 
 class UserController extends Controller
 {
@@ -83,6 +84,7 @@ class UserController extends Controller
             ]);
             if($validate->fails()) return response(["status"=>"fail", "data"=>$validate->errors() ], 409);
         }
+        $request['temporal'] = "false";
         $update = User::where("id", $id)->update($request->all());
         $user = Auth::user();
         return response(["status" => $update ? "success" : "fail", "message" => !$update ?"unable to update":"user updated", "data"=> $user ], $update ? 200: 401); 
@@ -134,46 +136,49 @@ class UserController extends Controller
         
 
         $user= "volumide42@gmail.com";
-        // $response = $this->mailingService->sendMail($request->to, $request->subject, $request->content);
-        // return $response;
+        $response = $this->mailingService->sendMail($request->to, $request->subject, $request->content);
+        return $response;
         // dd($response);
         // if ($response->success_count > 0) {
         //     dd($response);
         // } else {
         //     // Error occurred while sending email
         // }
-        $users = Mail::to($user)->send(new Verification());
-        dd($users);
+        // $users = Mail::to($user)->send(new Verification());
+        // dd($users);
     }
 
-    public function forgotPaswordCode(Request $request) {
-        $code = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
-        $user = User::where("email", $request->email)->first();
-        if(!$user){
-            return response(["status" => "fail", "message" =>"user not found" ], 404); 
-        }
+    // public function forgotPaswordCode(Request $request) {
+    //     $code = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+    //     $user = User::where("email", $request->email)->first();
+    //     if(!$user){
+    //         return response(["status" => "fail", "message" =>"user not found" ], 404); 
+    //     }
 
-        User::where("email", $request->email)->update("code", $code);
-        return response(["status" => "success", "message" =>"user not found", "data" => $code ], 200); 
-    }
+    //     User::where("email", $request->email)->update("code", $code);
+    //     return response(["status" => "success", "message" =>"user not found", "data" => $code ], 200); 
+    // }
 
     public function resetPassword(Request $request)
     {
-        $password = bcrypt($request->password);
+        $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        $password = bcrypt($code);
         $user = User::where([
             "email"=> $request->email,
-            "code"=> $request->code
         ])->first();
-
         if(!$user){
-            return response(["status" => "fail", "message" =>"invalid code" ], 404); 
+            return response(["status" => "fail", "message" =>"Unknown user" ], 404); 
         }
-
+        $data = [
+            'password' => $code,
+            'message' => 'This is a temporal password',
+        ];
+        // Compile the Blade template into HTML and pass data
+        $htmlContent = View::make("email", $data)->render();
+        $response = $this->mailingService->sendMail($request->to, "Forgot Password", $htmlContent);
         $user = User::where([
             "email"=> $request->email,
-            "code"=> $request->code
-        ])->update("password", $password);
-
-        return response(["status" => "success", "message" => "password reset success"  ], 200); 
+        ])->update(["password" => $password,  "temporal"=>"true"]);
+        return response(["status" => "success", "message" => "password reset success", "new_password"=> $code, "response"=> $response  ], 200); 
     }
 }
