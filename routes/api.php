@@ -40,7 +40,7 @@ Route::post("send/mail", [UserController::class, "sendMail"]);
 
 Route::get("service/latest", [ServiceController::class, "getLatest"]);
 Route::get("service/all", [ServiceController::class, "getAllService"]);
-
+Route::post("send/recipt", [UserController::class, "review"]);
 Route::get("commision", [Commision::class, "getLatest"]);
 Route::group(['middleware' => 'auth:api'], function() {
 	Route::apiResource("user", UserController::class)->except("store");

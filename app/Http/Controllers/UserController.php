@@ -196,55 +196,13 @@ class UserController extends Controller
         return response(["status" => "success", "message" => "password reset success", "new_password"=> $code, "response"=> $response  ], 200); 
     }
 
-    public function review() 
+    public function review(Request $request) 
     {
-        $data = [
-            "code" => "000",
-            "content" => [
-                "transactions" => [
-                    "amount" => 1000,
-                    "convinience_fee" => 0,
-                    "status" => "delivered",
-                    "name" => null,
-                    "phone" => "07061933309",
-                    "email" => "sandbox@vtpass.com",
-                    "type" => "Electricity Bill",
-                    "created_at" => "2019-08-17 02:27:26",
-                    "discount" => null,
-                    "giftcard_id" => null,
-                    "total_amount" => 992,
-                    "commission" => 8,
-                    "channel" => "api",
-                    "platform" => "api",
-                    "service_verification" => null,
-                    "quantity" => 1,
-                    "unit_price" => 1000,
-                    "unique_element" => "1010101010101",
-                    "product_name" => "Eko Electric Payment - EKEDC",
-                ],
-            ],
-            "response_description" => "TRANSACTION SUCCESSFUL",
-            "requestId" => "hg3hgh3gdiud4w2wb33",
-            "amount" => "1000.00",
-            "transaction_date" => [
-                "date" => "2019-08-17 02:27:27.000000",
-                "timezone_type" => 3,
-                "timezone" => "Africa/Lagos",
-            ],
-            "purchased_code" => "Token : 42167939781206619049 Bonus Token : 62881559799402440206",
-            "mainToken" => "42167939781206619049",
-            "mainTokenDescription" => "Normal Sale",
-            "mainTokenUnits" => 16666.666,
-            "mainTokenTax" => 442.11,
-            "mainsTokenAmount" => 3157.89,
-            "bonusToken" => "62881559799402440206",
-            "bonusTokenDescription" => "FBE Token",
-            "bonusTokenUnits" => 50,
-            "bonusTokenTax" => null,
-            "bonusTokenAmount" => null,
-            "tariffIndex" => "52",
-            "debtDescription" => "1122",
-        ];
-        return view("/test", $data);
+        $data = $request->all();
+        $htmlContent = View::make("test", $data)->render();
+        $response = $this->mailingService->sendMail($request->to, "Receipt", $htmlContent, "no-reply@owletpay.com");
+        return response(["status" => "success", "message" => "password reset success", "response"=> $response  ], 200); 
+        
+        // return view("/test", $request);
     }
 }
