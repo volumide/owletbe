@@ -85,7 +85,7 @@ class FlutterwaveController extends Controller
             "data" => $request->data
         ]);
         // $transaction = Transaction::create($request->all());
-        return response(["status" => "success", "message" => "transaction created", "data" => $transaction], 200);
+        return response(["status" => "success", "message" => "transaction created", "id" => $transaction->id], 200);
     }
 
 
@@ -100,7 +100,7 @@ class FlutterwaveController extends Controller
     public function updateTransaction(Request $request, $id)
     {
         
-        $update = Transaction::where("transaction_id", $id)->update($request->all());
+        $update = Transaction::where("id", $id)->update($request->all());
         return response(["status" => $update ? "success" : "fail", "message" => !$update ?"unable to update":"transaction updated" ], $update ? 200: 401);
     }
 
@@ -179,22 +179,22 @@ class FlutterwaveController extends Controller
         
         $count = Transaction::count();
         $count += 1;
-        $uid = Str::uuid()->toString();
-        $tranId = str_pad($count,4, '0', STR_PAD_LEFT);
+        // $uid = Str::uuid()->toString();
+        // $tranId = str_pad($count,4, '0', STR_PAD_LEFT);
 
         User::where("id", $userId->id)->update(["wallet_balance" => $userId->wallet_balance - $wallet->new_balance]);
         $uid = Str::uuid()->toString();
         
-        Transaction::create([
-            "user_id" =>  $userId->id,
-            "type"=>$request->reason,
-            "requestId"=>$request->requestId,
-            "transaction_id"=>  $tranId,
-            "phone" => $request->phone,
-            "amount"=>$request->amount,
-            "tx_ref"=> $tranId . '-' . $uid,
-            "data" =>  $request->data
-        ]);
+        // Transaction::create([
+        //     "user_id" =>  $userId->id,
+        //     "type"=>$request->reason,
+        //     "requestId"=>$request->requestId,
+        //     "transaction_id"=>  $tranId,
+        //     "phone" => $request->phone,
+        //     "amount"=>$request->amount,
+        //     "tx_ref"=> $tranId . '-' . $uid,
+        //     "data" =>  $request->data
+        // ]);
         
         return response(["status"=>"success", "data"=>$wallet->id], 200);
     }

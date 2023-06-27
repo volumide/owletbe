@@ -33,6 +33,8 @@ Route::post("user", [UserController::class, "store"]);
 Route::post("reset", [UserController::class, "resetPassword"]);
 Route::post("payment", [FlutterwaveController::class, "createPayment"]);
 Route::post("transaction", [FlutterwaveController::class, "transaction"]);
+Route::put("transaction/{id}", [FlutterwaveController::class, "updateTransaction"]);
+
 Route::post("payment/verify", [FlutterwaveController::class, "verifyPayment"]);
 Route::post("send/mail", [UserController::class, "sendMail"]);
 
@@ -45,7 +47,7 @@ Route::group(['middleware' => 'auth:api'], function() {
 	Route::put("change/password", [UserController::class, "updatePassword"]);
 
 	// Route::post("transactions", [FlutterwaveController::class, "transaction"]);
-	Route::put("transaction/{id}", [FlutterwaveController::class, "updateTransaction"]);
+	
 	Route::get("transactions", [FlutterwaveController::class, "getTransactions"]);
 	Route::get("transaction/{id}", [FlutterwaveController::class, "getTransactionById"]);
 	Route::get("transactions/user", [FlutterwaveController::class, "userTransaction"]);

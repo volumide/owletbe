@@ -36,20 +36,34 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
         $validate =Validator::make($request->all(), [
             'email' => 'required|unique:users|email',
             'password' => 'required',
             'phone' => 'required|unique:users|min:11|max:11'
         ]);
         if($validate->fails()) return response(["status"=>"fail", "data"=>$validate->errors() ], 409);
-
+        $data = [
+            'message' => "",
+            "name" => $request->first_name. " " . $request->last_name
+        ];
+        $htmlContent = View::make("verification", $data)->render();
         $password = bcrypt($request->password);
+        // $request['verification_code'] = $code;
         $request['password'] = $password;
         $request['wallet_balance'] = 0;
-        
+        $response = $this->mailingService->sendMail($request->email, "Welcome Mail", $htmlContent);
         $user = User::create($request->all());
-        return response(["status"=>"success","data" => $user], 201);
+        return response(["status"=>"success","data" => $user, $response], 201);
     }
+
+    // public function verifyMail(Request $request) {
+    //      $user = User::where(['email' => $request->email, 'verification_code' => $request->code ]);
+    //      if(!$user){
+    //         return response(["status"=>"success","message" => "verifed"], 409);
+    //      }
+    //      return response(["status"=>"success","message" => "verifed"], 201);
+    // }
 
     /**
      * Display the specified resource.
@@ -175,10 +189,62 @@ class UserController extends Controller
         ];
         // Compile the Blade template into HTML and pass data
         $htmlContent = View::make("email", $data)->render();
-        $response = $this->mailingService->sendMail($request->to, "Forgot Password", $htmlContent);
+        $response = $this->mailingService->sendMail($request->to, "Forgot Password", $htmlContent, "no-reply@owletpay.com");
         $user = User::where([
             "email"=> $request->email,
         ])->update(["password" => $password,  "temporal"=>"true"]);
         return response(["status" => "success", "message" => "password reset success", "new_password"=> $code, "response"=> $response  ], 200); 
+    }
+
+    public function review() 
+    {
+        $data = [
+            "code" => "000",
+            "content" => [
+                "transactions" => [
+                    "amount" => 1000,
+                    "convinience_fee" => 0,
+                    "status" => "delivered",
+                    "name" => null,
+                    "phone" => "07061933309",
+                    "email" => "sandbox@vtpass.com",
+                    "type" => "Electricity Bill",
+                    "created_at" => "2019-08-17 02:27:26",
+                    "discount" => null,
+                    "giftcard_id" => null,
+                    "total_amount" => 992,
+                    "commission" => 8,
+                    "channel" => "api",
+                    "platform" => "api",
+                    "service_verification" => null,
+                    "quantity" => 1,
+                    "unit_price" => 1000,
+                    "unique_element" => "1010101010101",
+                    "product_name" => "Eko Electric Payment - EKEDC",
+                ],
+            ],
+            "response_description" => "TRANSACTION SUCCESSFUL",
+            "requestId" => "hg3hgh3gdiud4w2wb33",
+            "amount" => "1000.00",
+            "transaction_date" => [
+                "date" => "2019-08-17 02:27:27.000000",
+                "timezone_type" => 3,
+                "timezone" => "Africa/Lagos",
+            ],
+            "purchased_code" => "Token : 42167939781206619049 Bonus Token : 62881559799402440206",
+            "mainToken" => "42167939781206619049",
+            "mainTokenDescription" => "Normal Sale",
+            "mainTokenUnits" => 16666.666,
+            "mainTokenTax" => 442.11,
+            "mainsTokenAmount" => 3157.89,
+            "bonusToken" => "62881559799402440206",
+            "bonusTokenDescription" => "FBE Token",
+            "bonusTokenUnits" => 50,
+            "bonusTokenTax" => null,
+            "bonusTokenAmount" => null,
+            "tariffIndex" => "52",
+            "debtDescription" => "1122",
+        ];
+        return view("/test", $data);
     }
 }

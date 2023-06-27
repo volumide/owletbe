@@ -31,7 +31,8 @@ class User extends Authenticatable
         'password',
         "wallet_balance",
         "type",
-        "suspend"
+        "suspend",
+        "verification_code"
     ];
 
     /**
@@ -42,6 +43,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        "verification_code",
+        "email_verified_at"
     ];
 
     /**

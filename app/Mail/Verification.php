@@ -39,11 +39,11 @@ class Verification extends Mailable
         );
     }
 
-    public function sendMail($to, $subject, $content){
+    public function sendMail($to, $subject, $content, $from="getonboard@owletpay.com"){
         // $this->mailchimp->messages
         $response = $this->mailchimp->messages->send([
             'message' => [
-                'from_email' => "getonboard@owletpay.com",
+                'from_email' => $from,
                 'subject' => $subject,
                 'html' => $content,
                 'to' => [
