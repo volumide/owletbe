@@ -32,7 +32,9 @@ class User extends Authenticatable
         "wallet_balance",
         "type",
         "suspend",
-        "verification_code"
+        "verification_code",
+        "email_verified_at",
+        "code"
     ];
 
     /**
@@ -44,7 +46,6 @@ class User extends Authenticatable
         'password',
         'remember_token',
         "verification_code",
-        "email_verified_at"
     ];
 
     /**

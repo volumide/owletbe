@@ -24,4 +24,16 @@ class ServiceController extends Controller
         $services = Service::all();
         return  response(["status" => "success", "message" => "transaction created", "data" => $services ], 200);
     }
+
+    public function checkAmount(Request $request){
+        if($request->quantity && $request->quantity < 1){
+            return response(["status"=>"failed", "message"=> "insufficient balance"], 405);
+        }
+        
+        if($request->amount && $request->amount < 1){
+            return response(["status"=>"failed", "message"=> "insufficient balance"], 405);
+        }
+        
+        return response(["status"=>"success", "message"=> "successs"], 200);
+    }
 }

@@ -69,37 +69,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>Forgot Password</h2>
+            <h2>Verification code</h2>
         </div>
         <p>{{ $message }}</p>
-        <p>Password: {{ $password }}</p>
-
-        {{-- <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($products as $product)
-                    <tr>
-                        <td>{{ $product['name'] }}</td>
-                        <td>{{ $product['price'] }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td>Total:</td>
-                    <td>{{ $total }}</td>
-                </tr>
-            </tfoot>
-        </table> --}}
-
-        {{-- <p class="footer">Thank you for shopping with us!</p> --}}
-
-        {{-- <img class="logo" src="https://example.com/logo.png" alt="Company Logo"> --}}
+        <p>verification code: {{ $code }}</p>
     </div>
 </body>
 

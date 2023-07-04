@@ -179,24 +179,34 @@ class FlutterwaveController extends Controller
         
         $count = Transaction::count();
         $count += 1;
-        // $uid = Str::uuid()->toString();
-        // $tranId = str_pad($count,4, '0', STR_PAD_LEFT);
 
         User::where("id", $userId->id)->update(["wallet_balance" => $userId->wallet_balance - $wallet->new_balance]);
-        $uid = Str::uuid()->toString();
-        
-        // Transaction::create([
-        //     "user_id" =>  $userId->id,
-        //     "type"=>$request->reason,
-        //     "requestId"=>$request->requestId,
-        //     "transaction_id"=>  $tranId,
-        //     "phone" => $request->phone,
-        //     "amount"=>$request->amount,
-        //     "tx_ref"=> $tranId . '-' . $uid,
-        //     "data" =>  $request->data
-        // ]);
-        
+
         return response(["status"=>"success", "data"=>$wallet->id], 200);
+    }
+
+    public function transferWallet(Request $request){
+        $user = Auth::user();
+        $walletBalance = $user->wallet_balance;
+        $receipient = User::where("id", $request->id)->first();
+
+        if($request->amount < 1){
+            return response(["status"=>"fail", "message"=>"cannot process transaction"], 405);
+        }
+
+        if($request->amount > $user->wallet_balance){
+            return response(["status"=>"fail", "message"=>"insufficent wallet balance"], 405);
+        }
+
+        User::where("id", $request->id)->update(["wallet_balance" => $receipient->wallet_balance + $request->amount]);
+        Wallet::create([
+            'user_id'   => $user->id,
+            'old_balance' => $walletBalance,
+            "new_balance" => $walletBalance - $request->amount,
+            "type" => "transfer"
+        ]);
+        User::where("id", $user->id)->update(["wallet_balance" => $walletBalance - $request->amount]);
+        return response(["status"=>"success", "data"=>"wallet transfer successful"], 200);
     }
 
     public function getWallet(Request $request) {

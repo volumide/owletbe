@@ -25,7 +25,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        return response(["message"=>"success", "data"=>User::all() ], 200); 
+        return response(["message"=>"success", "data"=>User::inRandomOrder()->get() ], 200); 
     }
 
     /**
@@ -47,14 +47,27 @@ class UserController extends Controller
             'message' => "",
             "name" => $request->first_name. " " . $request->last_name
         ];
+        $verifycation = [
+            'message' => "Verification code",
+            "code" => $code
+        ];
         $htmlContent = View::make("verification", $data)->render();
+        
+        $verificationContent = View::make("email-verify", $verifycation)->render();
+        
         $password = bcrypt($request->password);
         // $request['verification_code'] = $code;
         $request['password'] = $password;
+        $request['code'] = $code;
         $request['wallet_balance'] = 0;
+
+        
         $response = $this->mailingService->sendMail($request->email, "Welcome Mail", $htmlContent);
+
+        $sendV = $this->mailingService->sendMail($request->email, "Email Verification", $verificationContent);
+
         $user = User::create($request->all());
-        return response(["status"=>"success","data" => $user, $response], 201);
+        return response(["status"=>"success","data" => $user, $response, $sendV], 201);
     }
 
     // public function verifyMail(Request $request) {
@@ -145,10 +158,41 @@ class UserController extends Controller
         return response(["status" => "success", "message" =>"password succesully changed" ], 200); 
     }
 
+    public function verificationEmail(Request $request){
+        $user = User::where(["email" => $request->email])->first();
+        if(!$user) return response(["status" => "success", "message" => "unable to verify user", "response"=> "success"  ], 404);
+
+        $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        $data = [
+            'code' => $code,
+            'message' => 'Your email verification code',
+        ];
+
+        User::where(["email" => $request->email])->update(["code" => $code]);
+        $htmlContent = View::make("email-verify", $data)->render();
+        $response = $this->mailingService->sendMail($request->email, "Email Verification", $htmlContent, "no-reply@owletpay.com");
+
+        return response(["status" => "success", "message" => "Check your mail for verification code", "response"=> $response  ], 200); 
+    }
+
+    public function verifyEmail(Request $request){
+        $user = User::where(["email" => $request->email])->first();
+
+        if(!$user) return response(["status" => "success", "message" => "unable to verify user", "response"=> "success"  ], 404); 
+
+        if($user->email_verified_at !== null) return response(["status" => "success", "message" => "email already verified", "response"=> "success"  ], 200); 
+
+        $verify = User::where(["email" => $request->email, "code" => $request->code])->update(["email_verified_at" => date("Y-m-d H:i:s")]);
+
+        if($verify){
+            return response(["status" => "success", "message" => "email verified", "response"=> "success",   ], 200); 
+        }
+
+        return response(["status" => "fail", "message" => "cannot verify user", "response"=> "success"  ], 405); 
+    }
+
     public function sendMail (Request $request) 
     {
-        
-
         $user= "volumide42@gmail.com";
         $response = $this->mailingService->sendMail($request->to, $request->subject, $request->content);
         return $response;
@@ -161,18 +205,6 @@ class UserController extends Controller
         // $users = Mail::to($user)->send(new Verification());
         // dd($users);
     }
-
-    // public function forgotPaswordCode(Request $request) {
-    //     $code = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
-    //     $user = User::where("email", $request->email)->first();
-    //     if(!$user){
-    //         return response(["status" => "fail", "message" =>"user not found" ], 404); 
-    //     }
-
-    //     User::where("email", $request->email)->update("code", $code);
-    //     return response(["status" => "success", "message" =>"user not found", "data" => $code ], 200); 
-    // }
-
     public function resetPassword(Request $request)
     {
         $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -205,4 +237,6 @@ class UserController extends Controller
         
         // return view("/test", $request);
     }
+
+
 }

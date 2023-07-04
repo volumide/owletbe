@@ -37,11 +37,17 @@ Route::put("transaction/{id}", [FlutterwaveController::class, "updateTransaction
 
 Route::post("payment/verify", [FlutterwaveController::class, "verifyPayment"]);
 Route::post("send/mail", [UserController::class, "sendMail"]);
-
 Route::get("service/latest", [ServiceController::class, "getLatest"]);
 Route::get("service/all", [ServiceController::class, "getAllService"]);
-Route::post("send/recipt", [UserController::class, "review"]);
+Route::post("send/receipt", [UserController::class, "review"]);
 Route::get("commision", [Commision::class, "getLatest"]);
+
+Route::post("check/value", [ServiceController::class, "checkAmount"]);
+
+Route::post("send/verification", [UserController::class, "verificationEmail"]);
+
+Route::post("verify/email", [UserController::class, "verifyEmail"]);
+
 Route::group(['middleware' => 'auth:api'], function() {
 	Route::apiResource("user", UserController::class)->except("store");
 	Route::put("change/password", [UserController::class, "updatePassword"]);
@@ -55,6 +61,7 @@ Route::group(['middleware' => 'auth:api'], function() {
 	Route::get("wallet", [FlutterwaveController::class, "getWallet"]);
 	Route::post("top/up", [FlutterwaveController::class, "topUpWallet"]);
 	Route::post("withdraw", [FlutterwaveController::class, "payWithWallet"]);
+	Route::post("transfer", [FlutterwaveController::class, "transferWallet"]);
 	
 	Route::put("commision/{id}", [Commision::class, "update"]);
 	Route::get("commisions", [Commision::class, "getAll"]);
